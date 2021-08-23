@@ -1,6 +1,6 @@
 %{
 #include <string.h>
-#include "olympic.tab.h"
+#include "olympics.tab.h"
 extern void exit(int);
 
 int line = 1;
@@ -37,7 +37,7 @@ int line = 1;
 
 [A-Za-z]+(" "[A-Za-z]+)*    { return TITLE; }
 
-[\t\r ]+  { /* skip white space */ }
+[\t\r ]+    /* skip white space */
 
 \n  { line++; }
                 
