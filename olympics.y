@@ -1,18 +1,21 @@
 %code {
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 extern int yylex(void);
-extern char* strcpy(char*, const char*);
 void yyerror(const char *s);
 
 int timesInOlympics(int start, int end);
 }
 
 %code requires {
-    enum constants { MAX_SIZE = 100, FIRST_OLYMPICS_YEAR = 1896, LAST_OLYMPICS_YEAR = 2020 };
+    enum constants { YEARS_BETWEEN_OLYMPICS = 4, MIN_OLYMPICS = 7, MAX_SIZE = 100, FIRST_OLYMPICS_YEAR = 1896, LAST_OLYMPICS_YEAR = 2020 };
 
     struct olympics {
-        int numOfAllSports;
+        char **releventSports;
+        int numOfReleventSports;
+        int numOfSports;
         int sum;
     };
 
@@ -44,18 +47,37 @@ int timesInOlympics(int start, int end);
 %%
 
 input: TITLE list_of_sports { 
-                                if ($2.numOfAllSports != 0)
-                                    printf("average number of games per sport: %.2f\n", ($2.sum / (float)$2.numOfAllSports)); 
+                                if ($2.numOfReleventSports != 0)
+                                {
+                                    printf("sports which appeared in at least %d olympic games:\n", MIN_OLYMPICS);
+                                    for (int i = 0; i < $2.numOfReleventSports; i++)
+                                        printf("%s\n", $2.releventSports[i]);
+                                }
                                 else
-                                    printf("there is no such sports\n");
+                                    printf("there is no such a sports which appeared in at least %d olympic games\n", MIN_OLYMPICS);
+
+                                printf("average number of games per sport: %.2f\n", $2.numOfSports != 0 ? ($2.sum / (float)$2.numOfSports) : 0);
+
+                                for (int i = 0; i < $2.numOfReleventSports; i++)
+                                    free($2.releventSports[i]);
+                                free($2.releventSports);
                             };
 
 list_of_sports: list_of_sports sport_info   {
-                                                $$.numOfAllSports++;
+                                                $$.numOfSports++;
                                                 $$.sum += $2.timesInOlympics;
 
-                                                if ($2.timesInOlympics >= 7)
-                                                    printf("%s\n", $2.name);
+                                                if ($2.timesInOlympics >= MIN_OLYMPICS)
+                                                {
+                                                    $$.releventSports = (char**)realloc($$.releventSports, ($$.numOfReleventSports + 1) * sizeof(char*));
+                                                    if (!$$.releventSports)
+                                                    {
+                                                        fprintf(stderr, "realloc failed\n");
+                                                        exit(EXIT_FAILURE);
+                                                    }
+
+                                                    $$.releventSports[$$.numOfReleventSports++] = strdup($2.name);
+                                                }
                                             }
     | %empty { };
 
@@ -88,7 +110,6 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    printf("sports which appeared in at least 7 olympic games:\n");
     yyparse();
     
     fclose (yyin);
@@ -103,5 +124,5 @@ void yyerror(const char *s)
 
 int timesInOlympics(int start, int end)
 {
-    return (end - start) / 4 + 1;
+    return (end - start) / YEARS_BETWEEN_OLYMPICS + 1;
 }

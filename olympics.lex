@@ -43,7 +43,7 @@ int line = 1;
                 
 .   { 
         fprintf(stderr, "line: %d unrecognized token %c (0x%x)\n", line, yytext[0], yytext[0]); 
-        exit(1); 
+        exit(EXIT_FAILURE); 
     }			
 
 %%
