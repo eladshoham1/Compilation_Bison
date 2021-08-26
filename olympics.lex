@@ -11,7 +11,7 @@ int line = 1;
 
 %%
 
-"Olympic Sports"    { return TITLE; }
+"Olympic Games"    { return TITLE; }
 
 "<sport>"   { return SPORT; }
 

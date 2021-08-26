@@ -27,7 +27,7 @@ int timesInOlympics(int start, int end);
 
 %union {
     char name[MAX_SIZE];
-    int year; 
+    int year;
     struct olympics _olympics;
     struct sport _sport;
     int timesInOlympics;

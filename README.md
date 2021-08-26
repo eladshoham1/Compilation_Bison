@@ -3,7 +3,7 @@ ID: 206001752
 
 Input: (From the file test_olympics.txt)
 
-Olympic Sports
+Olympic Games
 <sport> [Archery] <years> 1900-1908, 1920, since 1972
 
 <sport> [Athletics] <years> all
