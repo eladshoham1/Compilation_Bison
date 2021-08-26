@@ -11,6 +11,8 @@ int line = 1;
 
 %%
 
+"Olympic Sports"    { return TITLE; }
+
 "<sport>"   { return SPORT; }
 
 "<years>"   { return YEARS; }
@@ -34,8 +36,6 @@ int line = 1;
                                     yylval.name[strlen(yylval.name)-1] = '\0'; 
                                     return NAME; 
                                 }
-
-[A-Za-z]+(" "[A-Za-z]+)*    { return TITLE; }
 
 [\t\r ]+    /* skip white space */
 

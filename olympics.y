@@ -101,19 +101,19 @@ int main(int argc, char **argv)
     extern FILE *yyin;
     if (argc != 2) {
         fprintf (stderr, "Usage: ./%s <input-file-name>\n", argv[0]);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     yyin = fopen (argv [1], "r");
     if (yyin == NULL) {
         fprintf (stderr, "failed to open %s\n", argv[1]);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     yyparse();
     
     fclose (yyin);
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 void yyerror(const char *s)
