@@ -1,6 +1,5 @@
 %code {
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 extern int yylex(void);
@@ -13,10 +12,8 @@ int timesInOlympics(int start, int end);
     enum constants { YEARS_BETWEEN_OLYMPICS = 4, MIN_OLYMPICS = 7, MAX_SIZE = 100, FIRST_OLYMPICS_YEAR = 1896, LAST_OLYMPICS_YEAR = 2020 };
 
     struct olympics {
-        char **releventSports;
-        int numOfReleventSports;
+        int sumOfTimes;
         int numOfSports;
-        int sum;
     };
 
     struct sport {
@@ -26,10 +23,10 @@ int timesInOlympics(int start, int end);
 }
 
 %union {
-    char name[MAX_SIZE];
-    int year;
     struct olympics _olympics;
     struct sport _sport;
+    char name[MAX_SIZE];
+    int year;
     int timesInOlympics;
 }
 
@@ -46,40 +43,16 @@ int timesInOlympics(int start, int end);
 
 %%
 
-input: TITLE list_of_sports { 
-                                if ($2.numOfReleventSports != 0)
-                                {
-                                    printf("sports which appeared in at least %d olympic games:\n", MIN_OLYMPICS);
-                                    for (int i = 0; i < $2.numOfReleventSports; i++)
-                                        printf("%s\n", $2.releventSports[i]);
-                                }
-                                else
-                                    printf("there is no such a sports which appeared in at least %d olympic games\n", MIN_OLYMPICS);
-
-                                printf("average number of games per sport: %.2f\n", $2.numOfSports != 0 ? ($2.sum / (float)$2.numOfSports) : 0);
-
-                                for (int i = 0; i < $2.numOfReleventSports; i++)
-                                    free($2.releventSports[i]);
-                                free($2.releventSports);
-                            };
+input: TITLE list_of_sports { printf("average number of games per sport: %.2f\n", $2.numOfSports != 0 ? ($2.sumOfTimes / (float)$2.numOfSports) : 0); };
 
 list_of_sports: list_of_sports sport_info   {
                                                 $$.numOfSports++;
-                                                $$.sum += $2.timesInOlympics;
+                                                $$.sumOfTimes += $2.timesInOlympics;
 
                                                 if ($2.timesInOlympics >= MIN_OLYMPICS)
-                                                {
-                                                    $$.releventSports = (char**)realloc($$.releventSports, ($$.numOfReleventSports + 1) * sizeof(char*));
-                                                    if (!$$.releventSports)
-                                                    {
-                                                        fprintf(stderr, "realloc failed\n");
-                                                        exit(EXIT_FAILURE);
-                                                    }
-
-                                                    $$.releventSports[$$.numOfReleventSports++] = strdup($2.name);
-                                                }
+                                                    printf("%s\n", $2.name);
                                             }
-    | %empty { };
+    | %empty { printf("sports which appeared in at least %d olympic games:\n", MIN_OLYMPICS); };
 
 sport_info: SPORT NAME YEARS list_of_years  { 
                                                 strcpy($$.name, $2);
@@ -99,21 +72,23 @@ year_spec: YEAR_NUM { $$ = 1; }
 int main(int argc, char **argv)
 {
     extern FILE *yyin;
-    if (argc != 2) {
-        fprintf (stderr, "Usage: ./%s <input-file-name>\n", argv[0]);
-        return EXIT_FAILURE;
+    if (argc != 2) 
+    {
+        fprintf(stderr, "Usage: ./%s <input-file-name>\n", argv[0]);
+        return 1;
     }
 
-    yyin = fopen (argv [1], "r");
-    if (yyin == NULL) {
-        fprintf (stderr, "failed to open %s\n", argv[1]);
-        return EXIT_FAILURE;
+    yyin = fopen(argv[1], "r");
+    if (yyin == NULL) 
+    {
+        fprintf(stderr, "failed to open %s\n", argv[1]);
+        return 1;
     }
 
     yyparse();
     
-    fclose (yyin);
-    return EXIT_SUCCESS;
+    fclose(yyin);
+    return 0;
 }
 
 void yyerror(const char *s)
