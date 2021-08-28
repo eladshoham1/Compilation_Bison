@@ -1,0 +1,5 @@
+sports which appeared in at least 7 olympic games:
+Archery
+Athletics
+BasketBall
+average number of games per sport: 15.60
